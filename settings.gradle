@@ -1,0 +1,3 @@
+rootProject.name='spring-security-jwt-helper'
+
+include 'demo'

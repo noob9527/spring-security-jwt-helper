@@ -1,0 +1,74 @@
+buildscript {
+	ext {
+		kotlinVersion = '1.2.0'
+		springBootVersion = '1.5.9.RELEASE'
+        jacksonKotlinModuleVersion = '2.9.0'
+
+		junitPlatformVersion = '1.0.2'
+		junitJupiterVersion = '5.0.2'
+	}
+	repositories {
+		mavenCentral()
+		maven { url 'http://repo.spring.io/plugins-release' }
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+		classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+		classpath("org.junit.platform:junit-platform-gradle-plugin:$junitPlatformVersion")
+		classpath 'io.spring.gradle:propdeps-plugin:0.0.9.RELEASE'
+	}
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-spring'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'org.junit.platform.gradle.plugin'
+
+configure(allprojects) {
+	apply plugin: 'propdeps'
+	apply plugin: 'propdeps-maven'
+	apply plugin: 'propdeps-idea'
+}
+
+group = 'cn.staynoob'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+compileKotlin {
+	kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+	kotlinOptions.jvmTarget = "1.8"
+}
+compileJava.dependsOn(processResources)
+
+repositories {
+	mavenCentral()
+	maven { url 'https://jitpack.io' }
+}
+
+
+dependencies {
+	compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}")
+	compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
+
+    compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-security')
+	compile("io.jsonwebtoken:jjwt:0.9.0")
+    compile("com.fasterxml.jackson.module:jackson-module-kotlin:${jacksonKotlinModuleVersion}")
+
+	testCompile('org.springframework.security:spring-security-test')
+	testCompile("org.springframework.boot:spring-boot-starter-test") {
+		exclude group: "junit"
+	}
+	// junit5
+	testCompile("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
+	testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+	testCompile('com.github.sbrannen:spring-test-junit5:1.0.0')
+	// To avoid compiler warnings about @API annotations in JUnit code
+	testCompileOnly('org.apiguardian:apiguardian-api:1.0.0')
+
+	kapt "org.springframework.boot:spring-boot-configuration-processor"
+	optional "org.springframework.boot:spring-boot-configuration-processor"
+}
