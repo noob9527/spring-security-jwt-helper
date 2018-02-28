@@ -1,8 +1,7 @@
 package cn.staynoob.demo.api
 
 import cn.staynoob.demo.domain.Principal
-import cn.staynoob.demo.service.UserService
-import cn.staynoob.springsecurityjwt.service.JsonWebTokenService
+import cn.staynoob.springsecurityjwt.JwtService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -17,9 +16,7 @@ import javax.validation.Valid
 class AuthenticationCtrl {
 
     @Autowired
-    private lateinit var userService: UserService
-    @Autowired
-    private lateinit var jsonWebTokenService: JsonWebTokenService
+    private lateinit var jwtService: JwtService
 
 //    @Autowired
 //    private lateinit var authenticationManager: AuthenticationManager
@@ -30,8 +27,7 @@ class AuthenticationCtrl {
 //        val upToken = UsernamePasswordAuthenticationToken(principalDTO.username, principalDTO.password)
 //        val auth = authenticationManager.authenticate(upToken)
 //        SecurityContextHolder.getContext().authentication = auth
-        principal.eraseCredentials()
-        val token = jsonWebTokenService.createToken(principal)
+        val token = jwtService.createToken(principal)
         return ResponseEntity.ok("{\"token\":\"$token\"}")
     }
 }

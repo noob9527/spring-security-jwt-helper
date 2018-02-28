@@ -1,10 +1,9 @@
 package cn.staynoob.springsecurityjwt.autoconfigure
 
+import cn.staynoob.springsecurityjwt.DefaultJwtPrincipalService
 import cn.staynoob.springsecurityjwt.JwtAuthenticationFilter
 import cn.staynoob.springsecurityjwt.JwtAuthenticationProvider
-import cn.staynoob.springsecurityjwt.service.JsonWebTokenService
-import cn.staynoob.springsecurityjwt.service.JwtPrincipalService
-import cn.staynoob.springsecurityjwt.service.NoopJwtPrincipalService
+import cn.staynoob.springsecurityjwt.JwtPrincipalService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
@@ -42,10 +41,8 @@ abstract class JwtWebSecurityConfigurerAdapter : WebSecurityConfigurerAdapter() 
 
     @Bean
     @ConditionalOnMissingBean(JwtPrincipalService::class)
-    fun jwtPrincipalService(
-            jsonWebTokenService: JsonWebTokenService, jwtHelperProperties: JwtHelperProperties
-    ): JwtPrincipalService {
-        return NoopJwtPrincipalService(jsonWebTokenService, jwtHelperProperties)
+    fun jwtPrincipalService(): JwtPrincipalService {
+        return DefaultJwtPrincipalService()
     }
 
     /**

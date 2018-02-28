@@ -1,6 +1,5 @@
 package cn.staynoob.springsecurityjwt
 
-import cn.staynoob.springsecurityjwt.service.JwtPrincipalService
 import org.apache.log4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
@@ -24,10 +23,11 @@ class JwtAuthenticationProvider : AuthenticationProvider {
     override fun authenticate(authentication: Authentication): Authentication? {
         val jwtAuthenticationToken = authentication as JwtAuthenticationToken
         val jwtPrincipal = jwtAuthenticationToken.principal
-        val user = jwtPrincipalService.loadUser(jwtPrincipal)
+        val loadedPrincipal = jwtPrincipalService.loadPrincipal(jwtPrincipal)
                 ?: throw AuthenticationCredentialsNotFoundException("subject:${jwtPrincipal.subject} not found")
-        log.info(String.format("%s authenticate success", user.username))
-        return JwtAuthenticationToken(user, user.authorities)
+        val authorities = jwtPrincipalService.loadAuthorities(jwtPrincipal)
+        log.info("${loadedPrincipal.subject} authenticate success")
+        return JwtAuthenticationToken(loadedPrincipal, authorities)
                 .apply { isAuthenticated = true }
     }
 

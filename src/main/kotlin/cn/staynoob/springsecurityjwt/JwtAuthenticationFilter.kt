@@ -1,12 +1,10 @@
 package cn.staynoob.springsecurityjwt
 
 import cn.staynoob.springsecurityjwt.autoconfigure.JwtHelperProperties
-import cn.staynoob.springsecurityjwt.service.JwtPrincipalService
 import io.jsonwebtoken.JwtException
 import org.apache.log4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.AuthenticationEntryPoint
@@ -26,7 +24,7 @@ class JwtAuthenticationFilter : OncePerRequestFilter() {
     @Autowired
     private lateinit var jwtHelperProperties: JwtHelperProperties
     @Autowired
-    private lateinit var jwtPrincipalService: JwtPrincipalService
+    private lateinit var jwtService: JwtService
 
     override fun doFilterInternal(httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse, filterChain: FilterChain) {
         val token = httpServletRequest.getHeader(jwtHelperProperties.headerField)
@@ -36,32 +34,27 @@ class JwtAuthenticationFilter : OncePerRequestFilter() {
         }
 
         try {
-            val principal = jwtPrincipalService.parseJwt(token)
+            val principal = jwtService.parse(token)
             val authToken = JwtAuthenticationToken(principal)
             val auth = authenticationManager.authenticate(authToken)
             SecurityContextHolder.getContext().authentication = auth
         } catch (e: JwtException) {
-            // todo let customer handle jwt parse exception
             SecurityContextHolder.clearContext()
             authenticationEntryPoint.commence(
                     httpServletRequest,
                     httpServletResponse,
-                    BadCredentialsException(e.message)
+                    JwtAuthenticationException(e.message, e)
             )
             return
-        } catch (e: Exception) {
+        } catch (e: AuthenticationException) {
             SecurityContextHolder.clearContext()
-            // AuthenticationException
-            val authenticationException
-                    = e as? AuthenticationException
-                    ?: BadCredentialsException(e.message)
-            authenticationEntryPoint.commence(httpServletRequest,
+            authenticationEntryPoint.commence(
+                    httpServletRequest,
                     httpServletResponse,
-                    authenticationException
+                    e
             )
             return
         }
-
         filterChain.doFilter(httpServletRequest, httpServletResponse)
     }
 

@@ -1,4 +1,4 @@
-package cn.staynoob.springsecurityjwt.util
+package cn.staynoob.springsecurityjwt
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -17,8 +17,12 @@ object JsonSerializer {
         return objectMapper.writeValueAsString(obj)
     }
 
-    fun <T : Any> deserialize(jsonStr: String, clazz: KClass<T>): T {
-        return objectMapper.readValue(jsonStr, clazz.java)
+    fun <T : Any> deserialize(jsonStr: String, kClazz: KClass<T>): T {
+        return objectMapper.readValue(jsonStr, kClazz.java)
+    }
+
+    fun <T : Any> deserialize(jsonStr: String, clazz: Class<T>): T {
+        return objectMapper.readValue(jsonStr, clazz)
     }
 
     inline fun <reified T : Any> deserialize(jsonStr: String): T {

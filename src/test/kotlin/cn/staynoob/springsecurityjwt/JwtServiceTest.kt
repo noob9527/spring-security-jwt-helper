@@ -1,7 +1,6 @@
-package cn.staynoob.springsecurityjwt.service
+package cn.staynoob.springsecurityjwt
 
 import cn.staynoob.springsecurityjwt.autoconfigure.JwtHelperAutoConfiguration
-import cn.staynoob.springsecurityjwt.domin.JwtPrincipal
 import cn.staynoob.springsecurityjwt.support.base.TestBase
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.assertj.core.api.Assertions.assertThat
@@ -11,18 +10,30 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration
 
 @ImportAutoConfiguration(JwtHelperAutoConfiguration::class)
-class JsonWebTokenServiceTest : TestBase() {
+class JwtServiceTest : TestBase() {
 
     @Autowired
-    private lateinit var service: JsonWebTokenService
+    private lateinit var service: JwtService
 
     data class Sample(
-            val foo: String = "foo",
-            val bar: String = "bar"
+            val username: String = "username",
+            var password: String? = "password"
     ) : JwtPrincipal {
         @get:JsonIgnore
         override val subject: String
-            get() = foo
+            get() = username
+
+        override fun eraseCredentials() {
+            password = null
+        }
+    }
+
+    @Test
+    @DisplayName("test100")
+    fun test100() {
+        println(Sample::class.java.canonicalName)
+        println(Sample::class.java.name)
+        println(Sample::class.qualifiedName)
     }
 
     @Test
@@ -37,7 +48,9 @@ class JsonWebTokenServiceTest : TestBase() {
     fun parse() {
         val sample = Sample()
         val token = service.createToken(sample)
-        val result = service.parse(token, Sample::class)
+        println(token)
+        val result = service.parse(token)
+        println(result)
         assertThat(result).isEqualTo(sample)
     }
 
@@ -47,8 +60,8 @@ class JsonWebTokenServiceTest : TestBase() {
         val sample = Sample()
         val token = service.createToken(sample)
         val refreshToken = service.refreshToken(token)
-        val res1 = service.parse(token, Sample::class)
-        val res2 = service.parse(refreshToken, Sample::class)
+        val res1 = service.parse(token)
+        val res2 = service.parse(refreshToken)
         assertThat(res1).isEqualTo(res2)
     }
 }

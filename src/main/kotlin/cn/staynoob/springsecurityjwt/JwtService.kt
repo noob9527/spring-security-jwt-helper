@@ -1,42 +1,47 @@
-package cn.staynoob.springsecurityjwt.service
+package cn.staynoob.springsecurityjwt
 
-import cn.staynoob.springsecurityjwt.autoconfigure.JwtHelperProperties
-import cn.staynoob.springsecurityjwt.domin.JwtPrincipal
-import cn.staynoob.springsecurityjwt.util.JsonSerializer
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import org.apache.log4j.Logger
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
 import java.util.*
-import kotlin.reflect.KClass
 
 /**
  * Created by xy on 16-10-7.
  */
-@Component
-class JsonWebTokenService {
+class JwtService(
+        private val secret: String,
+        private val issuer: String?,
+        private val audience: String?,
+        private val expiration: Long,
+        private val ignoreTokenExpiration: Boolean,
+        private val scheme: String = "Bearer"
+) {
 
-    @Autowired
-    private lateinit var jwtHelperProperties: JwtHelperProperties
-
-    private val log = Logger.getLogger(JsonWebTokenService::class.java)
+    private val log = Logger.getLogger(JwtService::class.java)
 
     companion object {
         private const val JWT_PRINCIPAL_KEY = "jwtPrincipal"
+        private const val JWT_PRINCIPAL_CLASS_KEY = "jwtPrincipalClass"
     }
 
     fun createToken(jwtPrincipal: JwtPrincipal): String {
         //序列化
+        jwtPrincipal.eraseCredentials()
         val json = JsonSerializer.serialize(jwtPrincipal)
-        val map = mapOf(JWT_PRINCIPAL_KEY to json)
+        val map = mapOf(
+                JWT_PRINCIPAL_KEY to json,
+                JWT_PRINCIPAL_CLASS_KEY to jwtPrincipal::class.java.name
+        )
         return generateWithMap(jwtPrincipal.subject, map)
     }
 
-    fun <T : JwtPrincipal> parse(token: String, clazz: KClass<T>): T {
+    fun parse(token: String): JwtPrincipal {
         val claims = getPayload(token)
+        val className = claims.get(JWT_PRINCIPAL_CLASS_KEY, String::class.java)
+        val clazz = Class.forName(className)
+                .asSubclass(JwtPrincipal::class.java)
         val json = claims.get(JWT_PRINCIPAL_KEY, String::class.java)
         return JsonSerializer.deserialize(json, clazz)
     }
@@ -49,17 +54,17 @@ class JsonWebTokenService {
     private fun generateWithMap(subject: String, content: Map<String, Any>? = null): String {
         val timestamp = System.currentTimeMillis()
         val issuerAt = Date(timestamp)
-        val exp = Date(timestamp + jwtHelperProperties.expiration * 1000)
+        val exp = Date(timestamp + expiration * 1000)
         val claims = Jwts.claims()
         //自定义token内容，注意refresh token方法目前依赖于这行代码，并且其顺序必须在put其他字段之前
         if (content != null) claims.putAll(content)
         claims.setSubject(subject)
-                .setAudience(jwtHelperProperties.audience)
-                .setIssuer(jwtHelperProperties.issuer).issuedAt = issuerAt
-        if (!(jwtHelperProperties.ignoreTokenExpiration)) claims.expiration = exp
+                .setAudience(audience)
+                .setIssuer(issuer).issuedAt = issuerAt
+        if (!(ignoreTokenExpiration)) claims.expiration = exp
         val token = Jwts.builder()
                 .setClaims(claims)
-                .signWith(SignatureAlgorithm.HS256, jwtHelperProperties.secret)
+                .signWith(SignatureAlgorithm.HS256, secret)
                 .compact()
         return addScheme(token)
     }
@@ -67,7 +72,7 @@ class JsonWebTokenService {
     private fun getPayload(token: String): Claims {
         return try {
             Jwts.parser()
-                    .setSigningKey(jwtHelperProperties.secret)
+                    .setSigningKey(secret)
                     .parseClaimsJws(removeScheme(token))
                     .body
         } catch (e: JwtException) {
@@ -92,12 +97,12 @@ class JsonWebTokenService {
     }
 
     private fun addScheme(token: String): String {
-        return jwtHelperProperties.scheme + " " + token
+        return scheme + " " + token
     }
 
     private fun removeScheme(token: String): String {
-        if (!token.startsWith(jwtHelperProperties.scheme + " ")) throw JwtException("scheme mismatch")
-        return token.substring(jwtHelperProperties.scheme.length + 1)
+        if (!token.startsWith(scheme + " ")) throw JwtException("scheme mismatch")
+        return token.substring(scheme.length + 1)
     }
 
 }
