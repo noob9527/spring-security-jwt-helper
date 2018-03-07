@@ -25,7 +25,7 @@ class JwtAuthenticationProvider : AuthenticationProvider {
         val jwtPrincipal = jwtAuthenticationToken.principal
         val loadedPrincipal = jwtPrincipalService.loadPrincipal(jwtPrincipal)
                 ?: throw AuthenticationCredentialsNotFoundException("subject:${jwtPrincipal.subject} not found")
-        val authorities = jwtPrincipalService.loadAuthorities(jwtPrincipal)
+        val authorities = jwtPrincipalService.loadAuthorities(loadedPrincipal)
         log.info("${loadedPrincipal.subject} authenticate success")
         return JwtAuthenticationToken(loadedPrincipal, authorities)
                 .apply { isAuthenticated = true }
