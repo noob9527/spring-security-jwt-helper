@@ -1,4 +1,4 @@
-package cn.staynoob.springsecurityjwt
+package cn.staynoob.springsecurityjwt.exception
 
 import org.springframework.security.core.AuthenticationException
 

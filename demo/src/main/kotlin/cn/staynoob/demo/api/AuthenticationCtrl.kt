@@ -1,33 +1,44 @@
 package cn.staynoob.demo.api
 
-import cn.staynoob.demo.domain.Principal
+import cn.staynoob.springsecurityjwt.JwtClaims
 import cn.staynoob.springsecurityjwt.JwtService
-import org.springframework.beans.factory.annotation.Autowired
+import cn.staynoob.springsecurityjwt.TokenPair
+import io.jsonwebtoken.Jwts
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping(value = ["/authenticate"], produces = [(MediaType.APPLICATION_JSON_UTF8_VALUE)])
-class AuthenticationCtrl {
+@RequestMapping(value = ["/api/authenticate"], produces = [(MediaType.APPLICATION_JSON_UTF8_VALUE)])
+@PreAuthorize("permitAll")
+class AuthenticationCtrl(
+        @Suppress("unused")
+        private val authenticationManager: AuthenticationManager,
+        private val jwtService: JwtService
+) {
 
-    @Autowired
-    private lateinit var jwtService: JwtService
-
-//    @Autowired
-//    private lateinit var authenticationManager: AuthenticationManager
+    data class Credentials(
+            val username: String,
+            val password: String
+    )
 
     @PostMapping
-    fun create(@Valid @RequestBody principal: Principal): ResponseEntity<*> {
-        // your own authenticate logic ex:
-//        val upToken = UsernamePasswordAuthenticationToken(principalDTO.username, principalDTO.password)
-//        val auth = authenticationManager.authenticate(upToken)
+    fun create(@Valid @RequestBody credentials: Credentials): TokenPair {
+        // your own authenticate logic e.g.:
+//        val auth = UsernamePasswordAuthenticationToken(
+//                credentials.username,
+//                credentials.password
+//        ).let { authenticationManager.authenticate(it) }
 //        SecurityContextHolder.getContext().authentication = auth
-        val token = jwtService.createToken(principal)
-        return ResponseEntity.ok("{\"token\":\"$token\"}")
+        return jwtService.createTokenPair(
+                JwtClaims.of(credentials.username)
+        )
+    }
+
+    @PutMapping
+    fun refresh(@RequestBody refreshToken: String): TokenPair {
+        return jwtService.refresh(refreshToken)
     }
 }

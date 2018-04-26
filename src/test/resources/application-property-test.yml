@@ -1,0 +1,13 @@
+spring:
+  security:
+    jwt:
+      helper:
+        secret: test
+        issuer: test
+        audience: test
+        access-token-expiration: 0
+        refresh-token-expiration: 0
+        scheme: test
+        header-field: test
+        dev-mode: true
+        alg: hs512

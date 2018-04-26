@@ -1,44 +1,56 @@
 {
-  "groups": [{
-    "name": "spring.security.jwt.helper",
-    "type": "cn.staynoob.springsecurityjwt.autoconfigure.JwtHelperProperties",
-    "sourceType": "cn.staynoob.springsecurityjwt.autoconfigure.JwtHelperProperties"
-  }],
+  "groups": [
+    {
+      "name": "spring.security.jwt.helper",
+      "type": "cn.staynoob.springsecurityjwt.JwtProperties",
+      "sourceType": "cn.staynoob.springsecurityjwt.JwtProperties"
+    }
+  ],
   "properties": [
     {
       "name": "spring.security.jwt.helper.audience",
       "type": "java.lang.String",
-      "sourceType": "cn.staynoob.springsecurityjwt.autoconfigure.JwtHelperProperties"
+      "sourceType": "cn.staynoob.springsecurityjwt.JwtProperties"
     },
     {
-      "name": "spring.security.jwt.helper.expiration",
-      "type": "java.lang.Long",
-      "sourceType": "cn.staynoob.springsecurityjwt.autoconfigure.JwtHelperProperties"
+      "name": "spring.security.jwt.helper.alg",
+      "type": "io.jsonwebtoken.SignatureAlgorithm",
+      "sourceType": "cn.staynoob.springsecurityjwt.JwtProperties"
     },
     {
       "name": "spring.security.jwt.helper.header-field",
       "type": "java.lang.String",
-      "sourceType": "cn.staynoob.springsecurityjwt.autoconfigure.JwtHelperProperties"
-    },
-    {
-      "name": "spring.security.jwt.helper.ignore-token-expiration",
-      "type": "java.lang.Boolean",
-      "sourceType": "cn.staynoob.springsecurityjwt.autoconfigure.JwtHelperProperties"
+      "sourceType": "cn.staynoob.springsecurityjwt.JwtProperties"
     },
     {
       "name": "spring.security.jwt.helper.issuer",
       "type": "java.lang.String",
-      "sourceType": "cn.staynoob.springsecurityjwt.autoconfigure.JwtHelperProperties"
+      "sourceType": "cn.staynoob.springsecurityjwt.JwtProperties"
     },
     {
       "name": "spring.security.jwt.helper.scheme",
       "type": "java.lang.String",
-      "sourceType": "cn.staynoob.springsecurityjwt.autoconfigure.JwtHelperProperties"
+      "sourceType": "cn.staynoob.springsecurityjwt.JwtProperties"
     },
     {
       "name": "spring.security.jwt.helper.secret",
       "type": "java.lang.String",
-      "sourceType": "cn.staynoob.springsecurityjwt.autoconfigure.JwtHelperProperties"
+      "sourceType": "cn.staynoob.springsecurityjwt.JwtProperties"
+    },
+    {
+      "name": "spring.security.jwt.helper.dev-mode",
+      "type": "java.lang.Boolean",
+      "sourceType": "cn.staynoob.springsecurityjwt.JwtProperties"
+    },
+    {
+      "name": "spring.security.jwt.helper.access-token-expiration",
+      "type": "java.lang.Long",
+      "sourceType": "cn.staynoob.springsecurityjwt.JwtProperties"
+    },
+    {
+      "name": "spring.security.jwt.helper.refresh-token-expiration",
+      "type": "java.lang.Long",
+      "sourceType": "cn.staynoob.springsecurityjwt.JwtProperties"
     }
   ],
   "hints": []
