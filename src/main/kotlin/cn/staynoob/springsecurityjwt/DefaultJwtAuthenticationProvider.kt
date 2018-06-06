@@ -29,6 +29,8 @@ open class DefaultJwtAuthenticationProvider : AuthenticationProvider {
             throw JwtAuthenticationException(e.message, e)
         }
 
+        JwtStore.setToken(token)
+
         return auth.copy(validatedToken = token)
     }
 
